@@ -2,6 +2,7 @@ import User from "../models/user.js";
 import Task from "../models/task.js";
 import { Status } from "../constants/index.js";
 import { encriptar } from "../common/bcrypt.js";
+import { Op } from "sequelize";
 
 async function getUsers(req, res, next) {
     try {
@@ -130,6 +131,65 @@ async function getUserTasks(req, res, next) {
     }
 }
 
+async function usersPagination(req, res, next) {
+    try {
+        const { page = 1, limit = 10, search, orderBy = 'id', orderDir = 'DESC' } = req.query;
+
+        // Validar limit (solo 5, 10, 15, 20)
+        const validLimits = [5, 10, 15, 20];
+        const parsedLimit = parseInt(limit);
+        if (!validLimits.includes(parsedLimit)) {
+            return res.status(400).json({ message: "Limit must be 5, 10, 15, or 20" });
+        }
+
+        // Validar orderBy (id, username, status)
+        const validOrderBy = ['id', 'username', 'status'];
+        if (!validOrderBy.includes(orderBy)) {
+            return res.status(400).json({ message: "orderBy must be id, username, or status" });
+        }
+
+        // Validar orderDir (ASC, DESC)
+        const validOrderDir = ['ASC', 'DESC'];
+        if (!validOrderDir.includes(orderDir.toUpperCase())) {
+            return res.status(400).json({ message: "orderDir must be ASC or DESC" });
+        }
+
+        // Calcular offset para paginación
+        const offset = (page - 1) * parsedLimit;
+
+        // Construir la consulta
+        const whereClause = {};
+        if (search) {
+            whereClause.username = { [Op.iLike]: `%${search}%` };
+        }
+
+        // Contar total de registros
+        const total = await User.count({ where: whereClause });
+
+        // Obtener usuarios paginados
+        const users = await User.findAll({
+            attributes: ['id', 'username', 'status'],
+            where: whereClause,
+            order: [[orderBy, orderDir.toUpperCase()]],
+            limit: parsedLimit,
+            offset: offset,
+        });
+
+        // Calcular el número total de páginas
+        const pages = Math.ceil(total / parsedLimit);
+
+        // Respuesta
+        res.json({
+            total,
+            page: parseInt(page),
+            pages,
+            data: users,
+        });
+    } catch (error) {
+        next(error);
+    }
+}
+
 export default {
     getUsers,
     getUserById,
@@ -138,6 +198,7 @@ export default {
     deleteUser,
     activateInactivate,
     getUserTasks,
+    usersPagination,
     };
 
 
