@@ -75,8 +75,11 @@ async function updateUser(req, res, next) {
 async function deleteUser(req, res, next) {
     const { id } = req.params;
     try {
-        await User.destroy({ where: { id } });        
-        return res.status(204).json({ message: "User deleted successfully" });
+        const user = await User.destroy({ where: { id } });        
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+        res.json({ message: "User deleted successfully" });
     } catch (error) {
         next(error);
     }
