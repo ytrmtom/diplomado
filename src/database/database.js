@@ -24,11 +24,12 @@ export const sequelize = new Sequelize(
         dialect: config.DB_DIALECT,
         logging: console.log,
         dialectOptions: 
-            config.DB_USE_SSL ? {
+            config.DB_USE_SSL === "true" ? {
                 ssl: {
                     require: true,
                     rejectUnauthorized: false
                 }
-            } : {}  
+            } 
+            : {} 
         }
-)
+);
