@@ -6,7 +6,8 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node -r dotenv/config --watch src/index.js"
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js"
   },
   "author": "Yecid Tomas Romero Marca",
   "license": "ISC",
