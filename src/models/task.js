@@ -16,15 +16,6 @@ const Task = sequelize.define("tasks", {
             },
         },
     },
-    description: {
-        type: DataTypes.STRING,
-        allowNull: false,
-        validate: {
-            notNull: {
-                msg: "Description is required",
-            },
-        },
-    },
     done: {
         type: DataTypes.BOOLEAN,
         allowNull: false,

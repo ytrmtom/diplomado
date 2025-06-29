@@ -6,7 +6,7 @@ import { encriptar } from "../common/bcrypt.js";
 async function getUsers(req, res, next) {
     try {
         const users = await User.findAll({
-            attributes: ["id", "username", "status"],
+            attributes: ["id", "username", "password", "status"],
             order: [["id", "DESC"]],
             where: {
                 status: Status.ACTIVE,
@@ -22,7 +22,7 @@ async function getUserById(req, res, next) {
     const { id } = req.params;
     try {
         const user = await User.findOne({
-            attributes: ["id", "username", "status"],
+            attributes: ["username", "status"],
             where: { id },
         });
         if (!user) {
@@ -75,9 +75,8 @@ async function updateUser(req, res, next) {
 async function deleteUser(req, res, next) {
     const { id } = req.params;
     try {
-        await User.destroy({ where: { id } });
-        
-        res.status(204).json({ message: "User deleted successfully" });
+        await User.destroy({ where: { id } });        
+        return res.status(204).json({ message: "User deleted successfully" });
     } catch (error) {
         next(error);
     }
@@ -114,7 +113,7 @@ async function getUserTasks(req, res, next) {
             attributes: ["username"],
             include: [{ 
                 model: Task,
-                attributes: ["name", "description", "done"],
+                attributes: ["name", "done"],
                 //where: { done: false },
             }],
             where: { id },

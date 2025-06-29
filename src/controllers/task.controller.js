@@ -4,7 +4,7 @@ async function getTasks(req, res, next) {
     const { userId } = req.user;
     try {
         const tasks = await Task.findAll({
-            attributes: ["id", "name", "description", "done"],
+            attributes: ["id", "name", "done"],
             order: [["name", "DESC"]],
             where: {
                 userId,
@@ -18,9 +18,9 @@ async function getTasks(req, res, next) {
 
 async function createTask(req, res, next) {
     const { userId } = req.user;
-    const { name, description } = req.body;
+    const { name } = req.body;
     try {
-        const task = await Task.create({ name, description, userId });
+        const task = await Task.create({ name, userId });
         res.json(task);
     } catch (error) {
         next(error);
@@ -32,7 +32,7 @@ async function getTaskById(req, res, next) {
     const { userId } = req.user;
     try {
         const task = await Task.findOne({
-            attributes: ["name", "description", "done"],
+            attributes: ["name", "done"],
             where: { id, userId },
         });
         if (!task) {
@@ -50,7 +50,7 @@ async function updateTask(req, res, next) {
     const { userId } = req.user;
     try {
         const task = await Task.update(
-            { name, description },
+            { name },
             { where: { id, userId } 
         }
     );
